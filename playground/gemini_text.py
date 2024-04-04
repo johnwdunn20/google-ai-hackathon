@@ -3,12 +3,10 @@ import os
 
 load_dotenv()
 
-
 def get_res():
-    test_key = os.getenv("TEST_KEY")
-    if not test_key:
+    API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY")
+    if not API_KEY:
         raise ValueError("No API key found")
     
-
 
 get_res()
