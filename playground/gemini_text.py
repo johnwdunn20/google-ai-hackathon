@@ -19,4 +19,8 @@ def get_res():
             print(f'{model.name}: {model.description}')
     
 
-get_res()
+def main():
+    get_res()
+
+if __name__ == "__main__":
+    main()
