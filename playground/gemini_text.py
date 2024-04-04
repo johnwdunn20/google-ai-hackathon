@@ -14,10 +14,17 @@ def get_res():
     genai.configure(api_key=API_KEY)
     
     # list out the available models:
-    for model in genai.list_models():
-        if 'generateContent' in model.supported_generation_methods:
-            print(f'{model.name}: {model.description}')
+    # for model in genai.list_models():
+    #     if 'generateContent' in model.supported_generation_methods:
+    #         print(f'{model.name}: {model.description}')
+            
+    # use gemini-pro for text only prompts
+    model = genai.GenerativeModel('gemini-pro')
     
+    # prompt the model
+    response = model.generate_content('Give me some good, general advice.')
+    # to_markdown(response.text)
+    print(response.text)
 
 def main():
     get_res()
