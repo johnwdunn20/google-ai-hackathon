@@ -23,8 +23,10 @@ def get_res():
     
     # prompt the model
     response = model.generate_content('Give me some good, general advice.')
-    # to_markdown(response.text)
-    print(response.text)
+    # easier to convert to markdown in notebooks
+    for key, val in response.items():
+        print(f'{key.upper()}: {val}')
+    
 
 def main():
     get_res()
