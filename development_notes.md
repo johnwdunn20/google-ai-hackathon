@@ -7,6 +7,10 @@
 # Server
 1. To run the server: `uvicorn main:app --reload`
   a. Runs on port 8000 by default but can specify with `uvicorn main:app --reload --port 8000`
+  b. http://localhost:8000/docs contains openapi (swagger)
+  c. http://localhost:8000/redoc contains Redocs
+  d. http://localhost:8000/openapi.json contains the openapi specification automatically created for you by fastapi based on your routes
+  
 
 # Notes
 - Requirements.txt has too many libraries for production but is fine for now. Clean up unnecessary ones
