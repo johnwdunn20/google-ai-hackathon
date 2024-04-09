@@ -12,22 +12,34 @@ def json_to_schema(json_obj, schema=None):
     # handle when json_obj is a dictionary
     if isinstance(json_obj, dict):
         for key, value in json_obj.items():
-            # if value is another dictionary, call the function recursively
+            # if value is a dictionary, call the function recursively
             if isinstance(value, dict):
                 schema[key] = {}
                 json_to_schema(value, schema[key])
+            # if value is a list, call the function recursively
+            elif isinstance(value, list):
+                schema[key] = []
+                json_to_schema(value, schema[key])
+            # otherwise its a primitive type
             else:
                 schema[key] = type(value).__name__
                 
     # handle when json_obj is a list
     elif isinstance(json_obj, list):
-        schema = []
+        # *** THIS IS WRONG ***
+        schema[key] = []
         for item in json_obj:
+            # if value is a dictionary, call the function recursively
             if isinstance(item, dict):
-                schema.append({})
-                json_to_schema(item, schema[-1])
+                schema[key] = {}
+                json_to_schema(item, schema[key])
+            # if value is a list, call the function recursively
+            elif isinstance(value, list):
+                schema[key] = []
+                json_to_schema(value, schema[key])
+            # otherwise its a primitive type
             else:
-                schema.append(type(item).__name__)
+                schema[key] = type(value).__name__
     
         
     return schema
