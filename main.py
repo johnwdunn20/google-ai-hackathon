@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.json_comparison import compare_json
+from src.json_diff import compare_json
 
 app = FastAPI()
 
