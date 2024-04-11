@@ -1,3 +1,4 @@
+import json
 # Given a json object with any depth, the functions turns it into a schema with key: data type pairs.
 # Only accepts objects, not arrays
 def json_to_schema(json_obj, schema=None):
@@ -28,8 +29,8 @@ def json_to_schema(json_obj, schema=None):
                 schema[key] = type(value).__name__
                 
     # handle when json_obj is a list
+    # **** Need to compress the output so if there are multiple objects in the list, it should only return one schema
     elif isinstance(json_obj, list):
-        
         for item in json_obj:
             # if value is a dictionary, append empty dict and call the function recursively
             if isinstance(item, dict):
@@ -41,7 +42,9 @@ def json_to_schema(json_obj, schema=None):
                 json_to_schema(item, schema[-1])
             # otherwise its a primitive type
             else:
-                schema.append(type(item).__name__)
+                # only add the primitive type if it's not already in the schema
+                if type(item).__name__ not in schema:
+                    schema.append(type(item).__name__)
     return schema
 
 
@@ -55,10 +58,21 @@ def main():
             'city': 'Anytown',
             'zip': 12345
         },
-        'grades': [90, 85, 88]
+        'grades': [90, 85, 88],
+        'classes': [
+            {
+                'name': 'Math',
+                'grade': 90
+            },
+            {
+                'name': 'Science',
+                'grade': 85
+            }
+        ],
     }
     schema = json_to_schema(json_obj)
-    print(schema)
+    # json.dumps to format it
+    print(json.dumps(schema, indent=4))
     
 if __name__ == '__main__':
     main()
