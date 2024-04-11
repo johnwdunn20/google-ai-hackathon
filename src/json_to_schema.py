@@ -5,9 +5,12 @@ def json_to_schema(json_obj, schema=None):
     if schema is None and not isinstance(json_obj, dict):
         raise ValueError('json_obj must be a dictionary')
     
-    # Create empty dict when first called
+    # Create empty structure when first called
     if schema is None:
-        schema = {}
+        if isinstance(json_obj, dict):
+            schema = {}
+        else:
+            schema = []
         
     # handle when json_obj is a dictionary
     if isinstance(json_obj, dict):
@@ -26,22 +29,19 @@ def json_to_schema(json_obj, schema=None):
                 
     # handle when json_obj is a list
     elif isinstance(json_obj, list):
-        # *** THIS IS WRONG ***
-        schema[key] = []
+        
         for item in json_obj:
-            # if value is a dictionary, call the function recursively
+            # if value is a dictionary, append empty dict and call the function recursively
             if isinstance(item, dict):
-                schema[key] = {}
-                json_to_schema(item, schema[key])
-            # if value is a list, call the function recursively
-            elif isinstance(value, list):
-                schema[key] = []
-                json_to_schema(value, schema[key])
+                schema.append({})
+                json_to_schema(item, schema[-1])
+            # if value is a list, append empty list and call the function recursively
+            elif isinstance(item, list):
+                schema.append([])
+                json_to_schema(item, schema[-1])
             # otherwise its a primitive type
             else:
-                schema[key] = type(value).__name__
-    
-        
+                schema.append(type(item).__name__)
     return schema
 
 
@@ -57,8 +57,8 @@ def main():
         },
         'grades': [90, 85, 88]
     }
-    # schema = json_to_schema(json_obj)
-    print(type(json_obj).__name__)
+    schema = json_to_schema(json_obj)
+    print(schema)
     
 if __name__ == '__main__':
     main()
