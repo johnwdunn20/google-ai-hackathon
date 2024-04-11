@@ -31,6 +31,10 @@ def json_to_schema(json_obj, schema=None):
     # handle when json_obj is a list
     # **** Need to compress the output so if there are multiple objects in the list, it should only return one schema
     elif isinstance(json_obj, list):
+        # Potential Idea: track earlier structures and if a structure is repeated, don't add it to the schema instead of removing later
+        unique_items = []
+        seen_stuctures = set()
+                
         for item in json_obj:
             # if value is a dictionary, append empty dict and call the function recursively
             if isinstance(item, dict):
@@ -45,20 +49,28 @@ def json_to_schema(json_obj, schema=None):
                 # only add the primitive type if it's not already in the schema
                 if type(item).__name__ not in schema:
                     schema.append(type(item).__name__)
+        # after iterating through all items in the list, remove duplicates
+        # I already handle duplicate primitives so now I just need to handle duplicate lists and dictionaries
+        unique_tuples = set(tuple(sorted(sub_schema.items())) for sub_schema in schema if isinstance(sub_schema, dict))
+        print('unique tuples: ', unique_tuples)
+        schema + [dict(tup) for tup in unique_tuples]
+        print('schema: ', schema)   
+        
+        
     return schema
 
 
 def main():
     json_obj = {
-        'name': 'John Doe',
-        'age': 30,
-        'is_student': False,
-        'address': {
-            'street': '123 Main St',
-            'city': 'Anytown',
-            'zip': 12345
-        },
-        'grades': [90, 85, 88],
+        # 'name': 'John Doe',
+        # 'age': 30,
+        # 'is_student': False,
+        # 'address': {
+        #     'street': '123 Main St',
+        #     'city': 'Anytown',
+        #     'zip': 12345
+        # },
+        # 'grades': [90, 85, 88],
         'classes': [
             {
                 'name': 'Math',
@@ -69,6 +81,7 @@ def main():
                 'grade': 85
             }
         ],
+        # "list_of_lists": [[1, 2, 3], [4, 5, 6]],
     }
     schema = json_to_schema(json_obj)
     # json.dumps to format it
