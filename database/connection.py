@@ -1,11 +1,12 @@
-# Use SQLAlchemy to create a connection pool to the database
+# No longer using synchronous SQLAlchemy, instead using async databases package
+# from sqlalchemy import create_engine, MetaData
 
-from sqlalchemy import create_engine, MetaData
 # databases package is used to perform async operations - useful because FastAPI is async
 from databases import Database
 import os
 from dotenv import load_dotenv
 import asyncio
+import pprint
 
 # load environment variables
 load_dotenv()
@@ -25,10 +26,6 @@ print("Port:", parsed_url.port)  # This should be an integer
 print("Path:", parsed_url.path)
 
 
-engine = create_engine(DATABASE_URL)
-print('engine: ', engine)
-metadata = MetaData()
-
 # for async operations
 database = Database(DATABASE_URL)
 
@@ -37,8 +34,10 @@ async def test_query():
     try:
         query = 'SELECT * FROM public.test_table '
         results = await database.fetch_all(query)
+        print('Results: ', results)
         for result in results:
-            print(result)
+            # pretty print the result. Need to convert it to a dictionary first
+            pprint.pprint(dict(result))
             
     except Exception as e:
         print('Error: ', e)
