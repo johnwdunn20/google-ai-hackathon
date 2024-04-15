@@ -15,15 +15,15 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 print('DATABASE_URL: ', DATABASE_URL)
 
-from urllib.parse import urlparse
+# from urllib.parse import urlparse
 
-parsed_url = urlparse(DATABASE_URL)
-print("Scheme:", parsed_url.scheme)
-print("Username:", parsed_url.username)
-print("Password:", parsed_url.password)
-print("Hostname:", parsed_url.hostname)
-print("Port:", parsed_url.port)  # This should be an integer
-print("Path:", parsed_url.path)
+# parsed_url = urlparse(DATABASE_URL)
+# print("Scheme:", parsed_url.scheme)
+# print("Username:", parsed_url.username)
+# print("Password:", parsed_url.password)
+# print("Hostname:", parsed_url.hostname)
+# print("Port:", parsed_url.port)  # This should be an integer
+# print("Path:", parsed_url.path)
 
 
 # for async operations
