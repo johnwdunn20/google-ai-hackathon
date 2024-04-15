@@ -15,8 +15,8 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 print('DATABASE_URL: ', DATABASE_URL)
 
+# *** TO SEE THE PARSED QUERY STRING ***
 # from urllib.parse import urlparse
-
 # parsed_url = urlparse(DATABASE_URL)
 # print("Scheme:", parsed_url.scheme)
 # print("Username:", parsed_url.username)
@@ -26,9 +26,10 @@ print('DATABASE_URL: ', DATABASE_URL)
 # print("Path:", parsed_url.path)
 
 
-# for async operations
+# create a database object
 database = Database(DATABASE_URL)
 
+# test query
 async def test_query():
     await database.connect()
     try:
@@ -44,5 +45,17 @@ async def test_query():
         
     finally:
         await database.disconnect()
-
 asyncio.run(test_query())
+
+# get all schemas for a particular master
+async def get_schemas(use_case_id):
+    await database.connect()
+    try:
+        query = 'SELECT * FROM public.schema WHERE master_id = :use_case_id'
+        values = {'master_id': master_id}
+        results = await database.fetch_all(query=query, values=values)
+        return results
+    except Exception as e:
+        print('Error: ', e)
+    finally:
+        await database.disconnect()
