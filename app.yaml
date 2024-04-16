@@ -1,0 +1,18 @@
+runtime: python311
+
+entrypoint: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+env_variables:
+  # Environment variables can be set here.
+  ENV: 'production'
+
+automatic_scaling:
+  min_idle_instances: auto  # Minimum number of idle instances
+  max_idle_instances: auto  # Maximum number of idle instances
+  min_total_instances: 1    # Minimum number of total instances
+  max_total_instances: auto  # Maximum number of total instances
+
+handlers:
+- url: /.*
+  script: auto
+  secure: always
