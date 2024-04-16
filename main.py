@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
-from functions.json_diff import compare_json
+from functions.json_diff import json_diff
 from functions.json_to_schema import json_to_schema
 from database.connection import database
 import pprint
@@ -50,8 +50,9 @@ async def get_schemas(use_case_id: int, db = Depends(connect_db)):
 class JsonObj(BaseModel):
     class Config:
         extra = 'allow'
-    
-@app.post('/new_schema/{use_case_id}')
+
+# route when you get new data    
+@app.post('/new_data/{use_case_id}')
 async def new_schema(use_case_id: int, json_obj: JsonObj, db = Depends(connect_db)):
     try:
         print('json_obj: ', json_obj)
@@ -64,7 +65,13 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db = Depends(connect_d
         # check if schema already exists in db
         query_existing_schemas = 'SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id'
         existing_schemas = await db.fetch_all(query=query_existing_schemas, values={"use_case_id": use_case_id})
-        # # **** Maybe I just have a unique constraint on the use_case_id column in the schema_details table? This probably works if I can make it unique per use case id****
+
+        # check if schema has already been mapped to the master schema
+        for existing_schema in existing_schemas:
+            comparison = json_diff(schema, json.loads(existing_schema['data_schema']))
+            if not comparison:
+                return {'message': 'Schema has already been mapped'}
+            
         
         # query = 'INSERT INTO healthcare_data.schema_details (use_case_id, data_schema) VALUES (:use_case_id, :data_schema)'
         # await db.execute(query=query, values={"use_case_id": use_case_id, "data_schema": json.dumps(schema)})

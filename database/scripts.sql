@@ -11,6 +11,7 @@ CREATE TABLE healthcare_data.use_case (
 CREATE TABLE healthcare_data.schema_details (
     id SERIAL PRIMARY KEY,
     data_schema JSONB NOT NULL,
+    -- *** Need to add a field that's the comparison to the master_schema ***
     use_case_id INTEGER,
     CONSTRAINT fk_use_case FOREIGN KEY (use_case_id)
         REFERENCES healthcare_data.use_case (id)

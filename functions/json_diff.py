@@ -1,6 +1,6 @@
 from jsondiff import diff
 
-def compare_json(json1, json2):
+def json_diff(json1, json2):
     return diff(json1, json2)
 
 
@@ -38,7 +38,7 @@ def main():
         },
         'grades': [90, 85, 88]
     }
-    comparison = compare_json(json1, json3)
+    comparison = json_diff(json1, json3)
     print(comparison if comparison else 'No differences found')
     
 if __name__ == '__main__':
