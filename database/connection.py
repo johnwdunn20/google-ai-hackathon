@@ -2,16 +2,13 @@
 # databases package is used to perform async operations - useful because FastAPI is async
 from databases import Database
 import os
-from dotenv import load_dotenv
-import asyncio
-import pprint
-
-# load environment variables
-load_dotenv()
+# import asyncio
+# import pprint
+from google.cloud import secretmanager
 
 # get the database URL from the environment variables
 DATABASE_URL = os.getenv("DATABASE_URL")
-# print('DATABASE_URL: ', DATABASE_URL)
+print('DATABASE_URL: ', DATABASE_URL)
 
 # *** TO SEE THE PARSED QUERY STRING ***
 # from urllib.parse import urlparse
