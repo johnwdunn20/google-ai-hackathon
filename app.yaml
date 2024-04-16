@@ -17,6 +17,7 @@ skip_files:
 - ^\.vscode/
 - ^\.gitignore$
 - ^(.*/)?setup\.py$
+- ^(.*/)?\.md$
 
 automatic_scaling:
   min_idle_instances: automatic  # Minimum number of idle instances
