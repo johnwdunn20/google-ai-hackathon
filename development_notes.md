@@ -18,3 +18,4 @@
 # Deployment
 - Run `gcloud app deploy`
 - To view service, run `gcloud app browse`
+- Ran `gcloud auth application-default login` to authenticate google secret manager
