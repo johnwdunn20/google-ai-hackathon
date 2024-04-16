@@ -1,5 +1,8 @@
 -- Create a new schema called 'data'
-CREATE SCHEMA healthcare_data;
+-- CREATE SCHEMA healthcare_data;
+
+DROP TABLE IF EXISTS healthcare_data.schema_details;
+DROP TABLE IF EXISTS healthcare_data.use_case;
 
 -- Create table 'use_case' within the 'data' schema
 CREATE TABLE healthcare_data.use_case (
@@ -11,7 +14,7 @@ CREATE TABLE healthcare_data.use_case (
 CREATE TABLE healthcare_data.schema_details (
     id SERIAL PRIMARY KEY,
     data_schema JSONB NOT NULL,
-    -- *** Need to add a field that's the comparison to the master_schema ***
+    comparison_to_master_schema JSONB,
     use_case_id INTEGER,
     CONSTRAINT fk_use_case FOREIGN KEY (use_case_id)
         REFERENCES healthcare_data.use_case (id)

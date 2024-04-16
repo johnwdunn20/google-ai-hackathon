@@ -38,7 +38,7 @@ def main():
         },
         'grades': [90, 85, 88]
     }
-    comparison = json_diff(json1, json3)
+    comparison = json_diff(json1, json2)
     print(comparison if comparison else 'No differences found')
     
 if __name__ == '__main__':

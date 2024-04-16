@@ -23,12 +23,10 @@ async def connect_db():
 
 @app.get("/", summary='Initial route', description='Test Description')  # Defines a GET route for the root path "/"
 async def root():
-    test_secret = get_secret('test_secret')
     return {
         "about": "Summary of the project",
         "additional_documentation": "Link to DevPost and/or Youtube video",
         "usage": "Visit /docs to see the API documentation and /openapi.json to see the OpenAPI schema",
-        "test_secret": test_secret
     }
 
 
