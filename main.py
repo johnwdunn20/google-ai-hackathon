@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 # This is a context manager that would allow us to connect to the db as soon as the server starts up. Can be implemented later if necessary
 
-app = FastAPI()
+app = FastAPI(title='Improving Interoperability in Healthcare Data', version='0.1', description='This API is designed to improve interoperability in healthcare data by providing a way to map new data schemas to a master schema. It was built for the DevPost Google AI Hackathon. For a full description of the project, visit [DevPost](https://devpost.com/software/google-ai-hackathon-placeholder)')
 
 # Each request depends on this (so will not use pooling)
 async def connect_db():
@@ -21,7 +21,7 @@ async def connect_db():
     finally:
         await database.disconnect()
 
-@app.get("/")  # Defines a GET route for the root path "/"
+@app.get("/", summary='Initial route', description='Test Description')  # Defines a GET route for the root path "/"
 async def root():
     return {
         "about": "Summary of the project",
