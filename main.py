@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Depends
 from src.json_diff import compare_json
 from database.connection import database
 
@@ -7,18 +7,27 @@ from contextlib import asynccontextmanager
 
 app = FastAPI()
 
-@app.get("/schemas/{use_case_id}")
-async def get_schemas(use_case_id: int):
-    await database.connect()
+# Each request depends on this (so will not use pooling)
+async def connect_db():
     try:
-        query = 'SELECT data_schema FROM healthcare_data.schema_details = :use_case_id'
-        values = {'master_id': use_case_id}
-        results = await database.fetch_all(query=query, values=values)
-        return results
+        await database.connect()
+        yield database
     except Exception as e:
         print('Error: ', e)
     finally:
         await database.disconnect()
+
+@app.get("/schemas/{use_case_id}")
+async def get_schemas(use_case_id: int, db = Depends(database)):
+    try:
+        query = 'SELECT data_schema FROM healthcare_data.schema_details = $1'
+        results = await database.fetch_all(query=query, values=[use_case_id])
+        if not results:
+            raise HTTPException(status_code=404, detail='No schemas found for this use case id')
+        return results
+    except Exception as e:
+        print('Error: ', e)
+        raise HTTPException(status_code=500, detail='Error fetching schemas')
 
 # testing
 # @app.get("/")  # Defines a GET route for the root path "/"
