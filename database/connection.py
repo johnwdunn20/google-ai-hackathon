@@ -11,7 +11,7 @@ load_dotenv()
 
 # get the database URL from the environment variables
 DATABASE_URL = os.getenv("DATABASE_URL")
-print('DATABASE_URL: ', DATABASE_URL)
+# print('DATABASE_URL: ', DATABASE_URL)
 
 # *** TO SEE THE PARSED QUERY STRING ***
 # from urllib.parse import urlparse
