@@ -99,8 +99,6 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
         )
 
         print("comparison_to_master: ", comparison_to_master)
-        print('comparison_to_master type: ', type(comparison_to_master))
-        print('comparison_to_master json dumps: ', json.dumps(comparison_to_master))
         
         # add new schema to db
         insert_query = "INSERT INTO healthcare_data.schema_details (use_case_id, data_schema, comparison_to_master_schema) VALUES (:use_case_id, :data_schema, :comparison_to_master)"
@@ -108,7 +106,7 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
         values={
             "use_case_id": use_case_id,
             "data_schema": json.dumps(schema),
-            "comparison_to_master": json.dumps(comparison_to_master),
+            "comparison_to_master": str(comparison_to_master),
         }
         print('values: ', values)
 
@@ -117,7 +115,7 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
             values={
                 "use_case_id": use_case_id,
                 "data_schema": json.dumps(schema),
-                "comparison_to_master": json.dumps(comparison_to_master),
+                "comparison_to_master": str(comparison_to_master),
             },
         )
         print('insert_result: ', insert_result)

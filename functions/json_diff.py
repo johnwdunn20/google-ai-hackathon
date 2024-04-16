@@ -3,7 +3,6 @@ from jsondiff import diff
 def json_diff(json1, json2):
     return diff(json1, json2)
 
-
 def main():
     json1 = {
         'name': 'John Doe',

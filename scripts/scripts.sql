@@ -14,7 +14,7 @@ CREATE TABLE healthcare_data.use_case (
 CREATE TABLE healthcare_data.schema_details (
     id SERIAL PRIMARY KEY,
     data_schema JSONB NOT NULL,
-    comparison_to_master_schema JSONB,
+    comparison_to_master_schema VARCHAR,
     use_case_id INTEGER,
     CONSTRAINT fk_use_case FOREIGN KEY (use_case_id)
         REFERENCES healthcare_data.use_case (id)
