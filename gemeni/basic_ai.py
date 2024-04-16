@@ -15,7 +15,7 @@ def get_res(prompt):
     
     # prompt the model
     response = model.generate_content(prompt)
-    print('response from basic ai: ', response.text)
+    # print('response from basic ai: ', response.text)
         
     return response.text
     

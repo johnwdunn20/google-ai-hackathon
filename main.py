@@ -9,18 +9,26 @@ from pydantic import BaseModel
 from functions.google_secret import get_secret
 from gemeni.basic_ai import get_res
 
-app = FastAPI(title='Improving Interoperability in Healthcare Data', version='0.1', description='This API is designed to improve interoperability in healthcare data by providing a way to map new data schemas to a master schema. It was built for the DevPost Google AI Hackathon. For a full description of the project, visit [DevPost](https://devpost.com/software/google-ai-hackathon-placeholder)')
+app = FastAPI(
+    title="Improving Interoperability in Healthcare Data",
+    version="0.1",
+    description="This API is designed to improve interoperability in healthcare data by providing a way to map new data schemas to a master schema. It was built for the DevPost Google AI Hackathon. For a full description of the project, visit [DevPost](https://devpost.com/software/google-ai-hackathon-placeholder)",
+)
+
 
 # Each request depends on this (so will not use pooling)
 async def connect_db():
     try:
         await database.connect()
-        print('Connected to database')
+        print("Connected to database")
         yield database
     finally:
         await database.disconnect()
 
-@app.get("/", summary='Initial route', description='Test Description')  # Defines a GET route for the root path "/"
+
+@app.get(
+    "/", summary="Initial route", description="Test Description"
+)  # Defines a GET route for the root path "/"
 async def root():
     return {
         "about": "Summary of the project",
@@ -30,66 +38,101 @@ async def root():
 
 
 @app.get("/schemas/{use_case_id}")
-async def get_schemas(use_case_id: int, db = Depends(connect_db)):
+async def get_schemas(use_case_id: int, db=Depends(connect_db)):
     try:
-        query = 'SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id'
+        query = "SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id"
         results = await db.fetch_all(query=query, values={"use_case_id": use_case_id})
         if not results:
-            raise HTTPException(status_code=404, detail='No schemas found for this use case id')
+            raise HTTPException(
+                status_code=404, detail="No schemas found for this use case id"
+            )
         for result in results:
             # pretty print result
-            pprint.pprint(dict(result)['data_schema'])
-            
-        return [json.loads(result['data_schema']) for result in results]
+            pprint.pprint(dict(result)["data_schema"])
+
+        return [json.loads(result["data_schema"]) for result in results]
     except Exception as e:
-        print('Error: ', e)
-        raise HTTPException(status_code=500, detail='Error fetching schemas')
+        print("Error: ", e)
+        raise HTTPException(status_code=500, detail="Error fetching schemas")
+
 
 # type for any json object
 class JsonObj(BaseModel):
     class Config:
-        extra = 'allow'
+        extra = "allow"
 
-# route when you get new data    
-@app.post('/new_data/{use_case_id}')
-async def new_schema(use_case_id: int, json_obj: JsonObj, db = Depends(connect_db)):
+
+# route when you get new data
+@app.post("/new_data/{use_case_id}")
+async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)):
     try:
-        print('json_obj: ', json_obj)
-        print('use_case_id: ', use_case_id)
-        
+        print("json_obj: ", json_obj)
+        print("use_case_id: ", use_case_id)
+
         # convert to schema
         schema = json_to_schema(dict(json_obj))
-        print('schema: ', schema)
-        
+        print("schema: ", schema)
+        print('schema type: ', type(schema))
+        print('schema json dumps: ', json.dumps(schema))
+
         # check if schema already exists in db
-        query_existing_schemas = 'SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id'
-        existing_schemas = await db.fetch_all(query=query_existing_schemas, values={"use_case_id": use_case_id})
+        query_existing_schemas = "SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id"
+        existing_schemas = await db.fetch_all(
+            query=query_existing_schemas, values={"use_case_id": use_case_id}
+        )
 
         # check if schema has already been mapped to the master schema. If it has, state that it has already been mapped
         for existing_schema in existing_schemas:
-            comparison = json_diff(schema, json.loads(existing_schema['data_schema']))
+            comparison = json_diff(schema, json.loads(existing_schema["data_schema"]))
             if not comparison:
-                return {'message': 'Schema has already been mapped'}
-            
+                return {"message": "Schema has already been mapped"}
+
         # if schema is new, get the comparison to the master schema so that it can be mapped
-        query_master_schema = 'SELECT master_schema FROM healthcare_data.use_case where id = :use_case_id'
-        master_schema = await db.fetch_one(query=query_master_schema, values={"use_case_id": use_case_id})
-        comparison_to_master = json_diff(schema, json.loads(master_schema['master_schema']))
+        query_master_schema = (
+            "SELECT master_schema FROM healthcare_data.use_case where id = :use_case_id"
+        )
+        master_schema = await db.fetch_one(
+            query=query_master_schema, values={"use_case_id": use_case_id}
+        )
+        comparison_to_master = json_diff(
+            schema, json.loads(master_schema["master_schema"])
+        )
+
+        print("comparison_to_master: ", comparison_to_master)
+        print('comparison_to_master type: ', type(comparison_to_master))
+        print('comparison_to_master json dumps: ', json.dumps(comparison_to_master))
         
-        print('comparison_to_master: ', comparison_to_master)
         # add new schema to db
-        
+        insert_query = "INSERT INTO healthcare_data.schema_details (use_case_id, data_schema, comparison_to_master_schema) VALUES (:use_case_id, :data_schema, :comparison_to_master)"
+
+        values={
+            "use_case_id": use_case_id,
+            "data_schema": json.dumps(schema),
+            "comparison_to_master": json.dumps(comparison_to_master),
+        }
+        print('values: ', values)
+
+        insert_result = await db.execute(
+            query=insert_query,
+            values={
+                "use_case_id": use_case_id,
+                "data_schema": json.dumps(schema),
+                "comparison_to_master": json.dumps(comparison_to_master),
+            },
+        )
+        print('insert_result: ', insert_result)
+
         # invoke gemeni to suggest a new master schema
-        prompt = 'What is the capital of France?'  # this is a placeholder prompt
+        prompt = "What is the capital of France?"  # this is a placeholder prompt
         answer = get_res(prompt)
-        print('answer: ', answer)
-            
+        print("answer: ", answer)
+
         return {
-            'message': 'Schema added',
-            'comparison_to_master': comparison_to_master,
-            'new_master_schema': '** fill in later **',
-            'answer': answer
+            "message": "Schema added",
+            "comparison_to_master": comparison_to_master,
+            "new_master_schema": "** fill in later **",
+            "answer": answer,
         }
     except Exception as e:
-        print('Error: ', e)
-        raise HTTPException(status_code=500, detail='Error adding schema')
+        print("Error: ", e)
+        raise HTTPException(status_code=500, detail="Error adding schema")
