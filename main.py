@@ -6,7 +6,7 @@ import pprint
 import json
 from typing import List, Dict, Any
 from pydantic import BaseModel
-
+from functions.google_secret import get_secret
 from contextlib import asynccontextmanager
 # This is a context manager that would allow us to connect to the db as soon as the server starts up. Can be implemented later if necessary
 
@@ -23,10 +23,12 @@ async def connect_db():
 
 @app.get("/", summary='Initial route', description='Test Description')  # Defines a GET route for the root path "/"
 async def root():
+    test_secret = get_secret('test_secret')
     return {
         "about": "Summary of the project",
         "additional_documentation": "Link to DevPost and/or Youtube video",
         "usage": "Visit /docs to see the API documentation and /openapi.json to see the OpenAPI schema",
+        "test_secret": test_secret
     }
 
 
