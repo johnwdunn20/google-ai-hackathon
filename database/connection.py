@@ -1,5 +1,3 @@
-# No longer using synchronous SQLAlchemy, instead using async databases package
-# from sqlalchemy import create_engine, MetaData
 
 # databases package is used to perform async operations - useful because FastAPI is async
 from databases import Database
@@ -30,32 +28,19 @@ print('DATABASE_URL: ', DATABASE_URL)
 database = Database(DATABASE_URL)
 
 # test query
-async def test_query():
-    await database.connect()
-    try:
-        query = 'SELECT * FROM public.test_table '
-        results = await database.fetch_all(query)
-        print('Results: ', results)
-        for result in results:
-            # pretty print the result. Need to convert it to a dictionary first
-            pprint.pprint(dict(result))
+# async def test_query():
+#     await database.connect()
+#     try:
+#         query = 'SELECT * FROM public.test_table '
+#         results = await database.fetch_all(query)
+#         print('Results: ', results)
+#         for result in results:
+#             # pretty print the result. Need to convert it to a dictionary first
+#             pprint.pprint(dict(result))
             
-    except Exception as e:
-        print('Error: ', e)
+#     except Exception as e:
+#         print('Error: ', e)
         
-    finally:
-        await database.disconnect()
-asyncio.run(test_query())
-
-# get all schemas for a particular master
-async def get_schemas(use_case_id):
-    await database.connect()
-    try:
-        query = 'SELECT * FROM public.schema WHERE master_id = :use_case_id'
-        values = {'master_id': master_id}
-        results = await database.fetch_all(query=query, values=values)
-        return results
-    except Exception as e:
-        print('Error: ', e)
-    finally:
-        await database.disconnect()
+#     finally:
+#         await database.disconnect()
+# asyncio.run(test_query())
