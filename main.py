@@ -66,16 +66,26 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db = Depends(connect_d
         query_existing_schemas = 'SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id'
         existing_schemas = await db.fetch_all(query=query_existing_schemas, values={"use_case_id": use_case_id})
 
-        # check if schema has already been mapped to the master schema
+        # check if schema has already been mapped to the master schema. If it has, state that it has already been mapped
         for existing_schema in existing_schemas:
             comparison = json_diff(schema, json.loads(existing_schema['data_schema']))
             if not comparison:
                 return {'message': 'Schema has already been mapped'}
             
+        # if schema is new, get the comparison to the master schema so that it can be mapped
+        query_master_schema = 'SELECT master_schema FROM healthcare_data.master_schema where id = :use_case_id'
+        master_schema = await db.fetch_one(query=query_master_schema, values={"use_case_id": use_case_id})
+        comparison_to_master = json_diff(schema, json.loads(master_schema['master_schema']))
         
-        # query = 'INSERT INTO healthcare_data.schema_details (use_case_id, data_schema) VALUES (:use_case_id, :data_schema)'
-        # await db.execute(query=query, values={"use_case_id": use_case_id, "data_schema": json.dumps(schema)})
-        return 'Succesful test'
+        # add new schema to db
+        
+        # invoke gemeni to suggest a new master schema
+            
+        return {
+            'message': 'Schema added',
+            'comparison_to_master': comparison_to_master,
+            'new_master_schema': '** fill in later **'
+        }
     except Exception as e:
         print('Error: ', e)
         raise HTTPException(status_code=500, detail='Error adding schema')
