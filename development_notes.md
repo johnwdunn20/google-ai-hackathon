@@ -14,3 +14,7 @@
 
 # Notes
 - Requirements.txt has too many libraries for production but is fine for now. Clean up unnecessary ones
+
+# Deployment
+- Run `gcloud app deploy`
+- To view service, run `gcloud app browse`
