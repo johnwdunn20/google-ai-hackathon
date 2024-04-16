@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from src.json_diff import compare_json
 from database.connection import database
 import pprint
+import json
 
 from contextlib import asynccontextmanager
 # This is a context manager that would allow us to connect to the db as soon as the server starts up. Can be implemented later if necessary
@@ -28,7 +29,7 @@ async def get_schemas(use_case_id: int, db = Depends(connect_db)):
             # pretty print result
             pprint.pprint(dict(result)['data_schema'])
             
-        return [dict(result)['data_schema'] for result in results]
+        return [json.loads(result['data_schema']) for result in results]
     except Exception as e:
         print('Error: ', e)
         raise HTTPException(status_code=500, detail='Error fetching schemas')
@@ -36,7 +37,11 @@ async def get_schemas(use_case_id: int, db = Depends(connect_db)):
 # testing
 @app.get("/")  # Defines a GET route for the root path "/"
 async def root():
-    return {"message": "Hello World!"}
+    return {
+        "about": "Summary of the project",
+        "additional_documentation": "Link to DevPost and/or Youtube video",
+        "usage": "Visit /docs to see the API documentation and /openapi.json to see the OpenAPI schema",
+    }
 
 # @app.get("/items/{item_id}")
 # async def get_items(item_id: int):
