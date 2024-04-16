@@ -72,8 +72,8 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
         # convert to schema
         schema = json_to_schema(dict(json_obj))
         print("schema: ", schema)
-        print('schema type: ', type(schema))
-        print('schema json dumps: ', json.dumps(schema))
+        print("schema type: ", type(schema))
+        print("schema json dumps: ", json.dumps(schema))
 
         # check if schema already exists in db
         query_existing_schemas = "SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id"
@@ -95,20 +95,13 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
             query=query_master_schema, values={"use_case_id": use_case_id}
         )
         comparison_to_master = json_diff(
-            schema, json.loads(master_schema["master_schema"])
+            json.loads(master_schema["master_schema"]), schema
         )
 
         print("comparison_to_master: ", comparison_to_master)
-        
+
         # add new schema to db
         insert_query = "INSERT INTO healthcare_data.schema_details (use_case_id, data_schema, comparison_to_master_schema) VALUES (:use_case_id, :data_schema, :comparison_to_master)"
-
-        values={
-            "use_case_id": use_case_id,
-            "data_schema": json.dumps(schema),
-            "comparison_to_master": str(comparison_to_master),
-        }
-        print('values: ', values)
 
         insert_result = await db.execute(
             query=insert_query,
@@ -118,18 +111,16 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
                 "comparison_to_master": str(comparison_to_master),
             },
         )
-        print('insert_result: ', insert_result)
+        print("insert_result: ", insert_result)
 
         # invoke gemeni to suggest a new master schema
-        prompt = "What is the capital of France?"  # this is a placeholder prompt
-        answer = get_res(prompt)
+        answer = get_res(master_schema["master_schema"], schema)
         print("answer: ", answer)
 
         return {
-            "message": "Schema added",
-            "comparison_to_master": comparison_to_master,
-            "new_master_schema": "** fill in later **",
-            "answer": answer,
+            "original_master_schema": json.loads(master_schema["master_schema"]),
+            "comparison_to_master_schema": str(comparison_to_master),
+            "suggested_new_master_schema": json.loads(answer),
         }
     except Exception as e:
         print("Error: ", e)
