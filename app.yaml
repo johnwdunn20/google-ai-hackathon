@@ -16,6 +16,12 @@ skip_files:
 - ^\.github/
 - ^\.vscode/
 - ^\.gitignore$
+- ^logs/
+- ^config/
+- ^docs/
+- ^data/
+- ^cache/
+- ^.*\.log$
 - ^(.*/)?setup\.py$
 - ^(.*/)?\.md$
 
