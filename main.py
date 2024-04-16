@@ -18,6 +18,15 @@ async def connect_db():
     finally:
         await database.disconnect()
 
+@app.get("/")  # Defines a GET route for the root path "/"
+async def root():
+    return {
+        "about": "Summary of the project",
+        "additional_documentation": "Link to DevPost and/or Youtube video",
+        "usage": "Visit /docs to see the API documentation and /openapi.json to see the OpenAPI schema",
+    }
+
+
 @app.get("/schemas/{use_case_id}")
 async def get_schemas(use_case_id: int, db = Depends(connect_db)):
     try:
@@ -33,16 +42,3 @@ async def get_schemas(use_case_id: int, db = Depends(connect_db)):
     except Exception as e:
         print('Error: ', e)
         raise HTTPException(status_code=500, detail='Error fetching schemas')
-
-# testing
-@app.get("/")  # Defines a GET route for the root path "/"
-async def root():
-    return {
-        "about": "Summary of the project",
-        "additional_documentation": "Link to DevPost and/or Youtube video",
-        "usage": "Visit /docs to see the API documentation and /openapi.json to see the OpenAPI schema",
-    }
-
-# @app.get("/items/{item_id}")
-# async def get_items(item_id: int):
-#     return {'item_id: ': item_id}
