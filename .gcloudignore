@@ -17,3 +17,21 @@
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+
+# Additional files that can be ignored:
+- ^scripts/
+- ^playground/
+- ^tests/
+- ^venv/
+- ^\.git/
+- ^\.github/
+- ^\.vscode/
+- ^\.gitignore$
+- ^logs/
+- ^config/
+- ^docs/
+- ^data/
+- ^cache/
+- ^.*\.log$
+- ^(.*/)?setup\.py$
+- ^(.*/)?\.md$
