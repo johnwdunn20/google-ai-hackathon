@@ -26,21 +26,3 @@ print('DATABASE_URL: ', DATABASE_URL)
 
 # create a database object
 database = Database(DATABASE_URL)
-
-# test query
-# async def test_query():
-#     await database.connect()
-#     try:
-#         query = 'SELECT * FROM public.test_table '
-#         results = await database.fetch_all(query)
-#         print('Results: ', results)
-#         for result in results:
-#             # pretty print the result. Need to convert it to a dictionary first
-#             pprint.pprint(dict(result))
-            
-#     except Exception as e:
-#         print('Error: ', e)
-        
-#     finally:
-#         await database.disconnect()
-# asyncio.run(test_query())
