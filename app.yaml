@@ -6,6 +6,18 @@ env_variables:
   # Environment variables can be set here.
   ENV: 'production'
 
+# skip files and directories that are only needed for development
+skip_files:
+- ^scripts/
+- ^playground/
+- ^tests/
+- ^venv/
+- ^\.git/
+- ^\.github/
+- ^\.vscode/
+- ^\.gitignore$
+- ^(.*/)?setup\.py$
+
 automatic_scaling:
   min_idle_instances: automatic  # Minimum number of idle instances
   max_idle_instances: automatic  # Maximum number of idle instances
