@@ -7,8 +7,7 @@ import json
 from typing import List, Dict, Any
 from pydantic import BaseModel
 from functions.google_secret import get_secret
-from contextlib import asynccontextmanager
-# This is a context manager that would allow us to connect to the db as soon as the server starts up. Can be implemented later if necessary
+from gemeni.basic_ai import get_res
 
 app = FastAPI(title='Improving Interoperability in Healthcare Data', version='0.1', description='This API is designed to improve interoperability in healthcare data by providing a way to map new data schemas to a master schema. It was built for the DevPost Google AI Hackathon. For a full description of the project, visit [DevPost](https://devpost.com/software/google-ai-hackathon-placeholder)')
 
@@ -73,18 +72,23 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db = Depends(connect_d
                 return {'message': 'Schema has already been mapped'}
             
         # if schema is new, get the comparison to the master schema so that it can be mapped
-        query_master_schema = 'SELECT master_schema FROM healthcare_data.master_schema where id = :use_case_id'
+        query_master_schema = 'SELECT master_schema FROM healthcare_data.use_case where id = :use_case_id'
         master_schema = await db.fetch_one(query=query_master_schema, values={"use_case_id": use_case_id})
         comparison_to_master = json_diff(schema, json.loads(master_schema['master_schema']))
         
+        print('comparison_to_master: ', comparison_to_master)
         # add new schema to db
         
         # invoke gemeni to suggest a new master schema
+        prompt = 'What is the capital of France?'  # this is a placeholder prompt
+        answer = get_res(prompt)
+        print('answer: ', answer)
             
         return {
             'message': 'Schema added',
             'comparison_to_master': comparison_to_master,
-            'new_master_schema': '** fill in later **'
+            'new_master_schema': '** fill in later **',
+            'answer': answer
         }
     except Exception as e:
         print('Error: ', e)

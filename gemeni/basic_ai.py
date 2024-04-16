@@ -15,9 +15,9 @@ def get_res(prompt):
     
     # prompt the model
     response = model.generate_content(prompt)
-    # easier to convert to markdown in notebooks
-    for key, val in response.items():
-        print(f'{key.upper()}: {val}')
+    print('response from basic ai: ', response.text)
+        
+    return response.text
     
 
 def main():
