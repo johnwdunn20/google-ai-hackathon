@@ -1,5 +1,6 @@
 from jsondiff import diff
 
+# *** Need to update this to return a true dicitonary (Delete is a symbol for some reason)
 def json_diff(json1, json2):
     return diff(json1, json2)
 
