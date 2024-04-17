@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Body
 from functions.json_diff import json_diff
 from functions.json_to_schema import json_to_schema
 from database.connection import database
@@ -37,7 +37,10 @@ async def root():
     }
 
 
-@app.get("/schemas/{use_case_id}")
+@app.get(
+    "/schemas/{use_case_id}",
+    description="Get all schemas for a use case. Currently the only use case is '1'",
+)
 async def get_schemas(use_case_id: int, db=Depends(connect_db)):
     try:
         query = "SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id"
@@ -56,18 +59,42 @@ async def get_schemas(use_case_id: int, db=Depends(connect_db)):
         raise HTTPException(status_code=500, detail="Error fetching schemas")
 
 
-# type for any json object
 class JsonObj(BaseModel):
     class Config:
         extra = "allow"
 
 
 # route when you get new data
-@app.post("/new_data/{use_case_id}")
-async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)):
+@app.post(
+    "/new_data/{use_case_id}",
+    description="Check if new data is compatable with the existing data schema. If it's not, the route will suggest a new schema. Currently, the only supported use case is '1'",
+)
+async def new_schema(
+    use_case_id: int,
+    json_obj: JsonObj = Body(
+        ...,
+        example={
+            "visit": {"id": 501, "date": "2023-10-01"},
+            "patient": {
+                "id": 101,
+                "age": 30,
+                "height": "72",
+                "name": "John Doe",
+            },
+        },
+    ),
+    db=Depends(connect_db),
+):
     try:
+        print("Json obj: ", json_obj)
         # convert to schema
         schema = json_to_schema(dict(json_obj))
+        print("Schema: ", schema)
+
+        if not schema:
+            raise HTTPException(
+                status_code=400, detail="Error converting JSON to schema"
+            )
 
         # check if schema already exists in db
         query_existing_schemas = "SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id"
@@ -111,7 +138,7 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
         return {
             "original_master_schema": json.loads(master_schema["master_schema"]),
             "new_schema": json.loads(json.dumps(schema)),
-            "comparison_to_master_schema": str(comparison_to_master),
+            "comparison_to_master_schema": str(comparison_to_master), # *** this should be formatted better, but need to turn "delete" from a symbol to a string
             "suggested_new_master_schema": json.loads(answer),
         }
     except Exception as e:
