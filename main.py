@@ -66,14 +66,8 @@ class JsonObj(BaseModel):
 @app.post("/new_data/{use_case_id}")
 async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)):
     try:
-        print("json_obj: ", json_obj)
-        print("use_case_id: ", use_case_id)
-
         # convert to schema
         schema = json_to_schema(dict(json_obj))
-        print("schema: ", schema)
-        print("schema type: ", type(schema))
-        print("schema json dumps: ", json.dumps(schema))
 
         # check if schema already exists in db
         query_existing_schemas = "SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id"
@@ -98,12 +92,10 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
             json.loads(master_schema["master_schema"]), schema
         )
 
-        print("comparison_to_master: ", comparison_to_master)
-
         # add new schema to db
         insert_query = "INSERT INTO healthcare_data.schema_details (use_case_id, data_schema, comparison_to_master_schema) VALUES (:use_case_id, :data_schema, :comparison_to_master)"
 
-        insert_result = await db.execute(
+        await db.execute(
             query=insert_query,
             values={
                 "use_case_id": use_case_id,
@@ -111,14 +103,14 @@ async def new_schema(use_case_id: int, json_obj: JsonObj, db=Depends(connect_db)
                 "comparison_to_master": str(comparison_to_master),
             },
         )
-        print("insert_result: ", insert_result)
 
         # invoke gemeni to suggest a new master schema
         answer = get_res(master_schema["master_schema"], schema)
-        print("answer: ", answer)
 
+        # return suggested new master schema and relevant information
         return {
             "original_master_schema": json.loads(master_schema["master_schema"]),
+            "new_schema": json.loads(json.dumps(schema)),
             "comparison_to_master_schema": str(comparison_to_master),
             "suggested_new_master_schema": json.loads(answer),
         }

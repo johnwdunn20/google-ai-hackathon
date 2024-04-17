@@ -16,9 +16,10 @@ def main():
         'grades': [90, 85, 88]
     }
     json2 = {
-        'name': 'Jane Doe',
+        'name': 'John Doe',
         'age': 30,
         'is_student': False,
+        'new_field': 'new value',
         'address': {
             # 'street': '123 Main St',
             'city': 'Anytown',
