@@ -9,4 +9,6 @@ As a result, consumers of healthcare data are challenged to create a standard da
 This type of problem exists in other healthcare domains, such as machine readable files of rates and contracts that providers and payers must publish and many other areas outside of healthcare. When there a significant number of data producers, true data standardization is rare.
 
 ### Solution
-We prefer to solve data discrepancies upstream, at the data layer, so that application logic can be built upon a standard 
+We prefer to solve data discrepancies upstream, at the data layer, so that application logic can be built upon this standard.
+
+This project aims to resolve data discrepancies using Google's AI Platform. Take a here: [coral-silicon-420022.uw.r.appspot.com/docs](https://coral-silicon-420022.uw.r.appspot.com/docs)
