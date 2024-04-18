@@ -24,8 +24,8 @@ CREATE TABLE healthcare_data.schema_details (
 -- Insert data into the 'use_case' table
 INSERT INTO healthcare_data.use_case (master_schema, description)
 VALUES
-('{ "patient": { "id": "int", "name": "text", "age": "int" }, "visit": { "id": "int", "date": "date" } }'::jsonb, 'Simple Example');
-
+('{ "patient": { "id": "int", "name": "text", "age": "int" }, "visit": { "id": "int", "date": "date" } }'::jsonb, 'Simple Example'),
+('{ "patient": { "id": "int", "name": "text", "age": "int" }, "visit": { "id": "int", "date": "date" }, "charges": [{"revenue_code": "int", "cpt": "str", "service_date": "date"}] }'::jsonb, 'More complex Example');
 -- Insert data into the 'schema_details' table
 INSERT INTO healthcare_data.schema_details (data_schema, use_case_id)
 VALUES

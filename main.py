@@ -49,11 +49,18 @@ async def view_use_cases(db=Depends(connect_db)):
             raise HTTPException(
                 status_code=404, detail="No use cases found"
             )
+        print('Results type: ', type(results).__name__)
         for result in results:
             # pretty print result
             pprint.pprint(dict(result))
+            print('Result type: ', type(result).__name__)
+            print('Result Master Schema: ', type(result['master_schema']).__name__)
+            print('Result to dict: ', dict(result))
+            print('Master Schema to json load: ', json.loads(result['master_schema']))
 
-        return [json.loads(dict(result)) for result in results]
+        # dict converts results to a list of dictionaries
+
+        return [{"id": result['id'], "description": result['description'], "master_schema": json.loads(result['master_schema'])} for result in results]
     except Exception as e:
         print("Error: ", e)
         raise HTTPException(status_code=500, detail="Error fetching use cases")
