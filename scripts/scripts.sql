@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS healthcare_data.use_case;
 -- Create table 'use_case' within the 'data' schema
 CREATE TABLE healthcare_data.use_case (
     id SERIAL PRIMARY KEY,
+    description VARCHAR,
     master_schema JSONB NOT NULL
 );
 
@@ -21,12 +22,12 @@ CREATE TABLE healthcare_data.schema_details (
 );
 
 -- Insert data into the 'use_case' table
-INSERT INTO healthcare_data.use_case (master_schema)
+INSERT INTO healthcare_data.use_case (master_schema, description)
 VALUES
-('{ "patient": { "id": "int", "name": "text", "age": "int" }, "visit": { "id": "int", "date": "date" } }'::jsonb);
+('{ "patient": { "id": "int", "name": "text", "age": "int" }, "visit": { "id": "int", "date": "date" } }'::jsonb, 'Simple Example');
 
 -- Insert data into the 'schema_details' table
 INSERT INTO healthcare_data.schema_details (data_schema, use_case_id)
 VALUES
-('{ "patient": { "id": 101, "name": "John Doe", "age": 30 }, "visit": { "id": 501, "date": "2023-10-01" } }'::jsonb, 1),
-('{ "patient": { "id": 102, "name": "Jane Smith", "age": 25 }, "visit": { "id": 502, "date": "2023-10-02" } }'::jsonb, 1);
+('{ "patient": { "id": "int", "name": "text", "age": "int" }, "visit": { "id": "int", "date": "date" } }'::jsonb, 1),
+('{ "patient": { "id": "int", "name": "text" }, "visit": { "id": "int", "date": "date" } }'::jsonb, 1);
