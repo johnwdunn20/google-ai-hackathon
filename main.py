@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException, Depends, Body
+from fastapi import FastAPI, HTTPException, Depends, Body, Response
 from functions.json_diff import json_diff
 from functions.json_to_schema import json_to_schema
 from database.connection import database
 import pprint
 import json
 from typing import List, Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from functions.google_secret import get_secret
 from gemeni.basic_ai import get_res
 
@@ -46,8 +46,8 @@ async def view_use_cases(db=Depends(connect_db)):
         query = "SELECT * FROM healthcare_data.use_case"
         results = await db.fetch_all(query=query)
         if not results:
-            raise HTTPException(
-                status_code=404, detail="No use cases found"
+            return HTTPException(
+                status_code=204, detail="No use cases found"
             )
         print('Results type: ', type(results).__name__)
         for result in results:
@@ -65,10 +65,10 @@ async def view_use_cases(db=Depends(connect_db)):
         print("Error: ", e)
         raise HTTPException(status_code=500, detail="Error fetching use cases")
 
-class Master_Schema(BaseModel):
-    class Config:
-        extra = "allow"
 
+class Master_Schema(BaseModel):
+    description: str
+    master_schema: Dict[str, Any] = Field(..., example={"key": "value", "another_key": 123}, allow_extra=True)
 
 # create a new use case
 @app.post(
@@ -76,23 +76,23 @@ class Master_Schema(BaseModel):
     description="Create a new use case",
 )
 async def new_use_case(
-    master_schema: Master_Schema = Body(
-        ...,
-        example={
-            "visit": {"id": "int", "date": "date"},
-            "patient": {"id": "int", "age": "int", "name": "text"},
-        },
-    ),
+    description_schema: Master_Schema,
     db=Depends(connect_db),
 ):
     try:
+        description = description_schema.description
+        master_schema = description_schema.master_schema
+        print("Description: ", description)
+        print("Description type: ", type(description).__name__)
+        print("Master Schema: ", master_schema)
         # add new use case to db
-        insert_query = "INSERT INTO healthcare_data.use_case (master_schema) VALUES (:master_schema) RETURNING id"
+        insert_query = "INSERT INTO healthcare_data.use_case (master_schema, description) VALUES (:master_schema, :description) RETURNING id"
 
         row_id = await db.execute(
             query=insert_query,
             values={
                 "master_schema": json.dumps(dict(master_schema)),
+                "description": description,
             },
         )
         # Return success message and new rowId
@@ -113,10 +113,10 @@ async def get_schemas(use_case_id: int, db=Depends(connect_db)):
     try:
         query = "SELECT data_schema FROM healthcare_data.schema_details where use_case_id = :use_case_id"
         results = await db.fetch_all(query=query, values={"use_case_id": use_case_id})
+        print('Results: ', results)
         if not results:
-            raise HTTPException(
-                status_code=404, detail="No schemas found for this use case id"
-            )
+            return Response(status_code=204)
+        
         for result in results:
             # pretty print result
             pprint.pprint(dict(result)["data_schema"])
@@ -154,13 +154,23 @@ async def new_schema(
     db=Depends(connect_db),
 ):
     try:
+        # check if use case exists
+        query_use_case = "SELECT 1 FROM healthcare_data.use_case where id = :use_case_id"
+        query_exists = await db.fetch_one(
+            query=query_use_case, values={"use_case_id": use_case_id}
+        )
+        if not query_exists:
+            return HTTPException(
+                status_code=404, detail="Use case does not exist"
+            )
+        
         print("Json obj: ", json_obj)
         # convert to schema
         schema = json_to_schema(dict(json_obj))
         print("Schema: ", schema)
 
         if not schema:
-            raise HTTPException(
+            return HTTPException(
                 status_code=400, detail="Error converting JSON to schema"
             )
 
