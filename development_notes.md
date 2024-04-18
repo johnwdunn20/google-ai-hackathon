@@ -23,5 +23,12 @@
 # Google Notes
 - Agent Builder allows you to easily add additional data to an LLM
   - Can build an LLM with access to your FHIR store on Agent Builder
+  - Doesn't look like apps built with Agent Builder can be deployed via API
 - Google AI Studio is a GUI to help with prompt engineering. Ex: can give it expected inputs and outputs and then it feeds those as examples into the model.
 - VertexAI
+
+# Summary
+- Fine-Tuning: modify model weights based on a labeled data set
+- RAG: provide additional information to the model before it replies. Need to search for the correct data
+  - On Google, you can use their no-code tools to give it data, and then it does a semantic search for you
+  - You'd need to do more of this on your own if you weren't using google's infrastructure
