@@ -36,7 +36,68 @@ async def root():
         "usage": "Visit /docs to see the API documentation and /openapi.json to see the OpenAPI schema",
     }
 
+# view all use cases
+@app.get(
+    "/use_cases",
+    description="View all use cases",
+)
+async def view_use_cases(db=Depends(connect_db)):
+    try:
+        query = "SELECT * FROM healthcare_data.use_case"
+        results = await db.fetch_all(query=query)
+        if not results:
+            raise HTTPException(
+                status_code=404, detail="No use cases found"
+            )
+        for result in results:
+            # pretty print result
+            pprint.pprint(dict(result))
 
+        return [json.loads(dict(result)) for result in results]
+    except Exception as e:
+        print("Error: ", e)
+        raise HTTPException(status_code=500, detail="Error fetching use cases")
+
+class Master_Schema(BaseModel):
+    class Config:
+        extra = "allow"
+
+
+# create a new use case
+@app.post(
+    "/new_use_case",
+    description="Create a new use case",
+)
+async def new_use_case(
+    master_schema: Master_Schema = Body(
+        ...,
+        example={
+            "visit": {"id": "int", "date": "date"},
+            "patient": {"id": "int", "age": "int", "name": "text"},
+        },
+    ),
+    db=Depends(connect_db),
+):
+    try:
+        # add new use case to db
+        insert_query = "INSERT INTO healthcare_data.use_case (master_schema) VALUES (:master_schema) RETURNING id"
+
+        row_id = await db.execute(
+            query=insert_query,
+            values={
+                "master_schema": json.dumps(dict(master_schema)),
+            },
+        )
+        # Return success message and new rowId
+        return {
+            "message": "Use case added",
+            "row_id": row_id,
+            }
+    except Exception as e:
+        print("Error: ", e)
+        raise HTTPException(status_code=500, detail="Error adding use case")
+
+# get all schemas for a particular use case
 @app.get(
     "/schemas/{use_case_id}",
     description="Get all schemas for a use case. Currently the only use case is '1'",
@@ -138,9 +199,13 @@ async def new_schema(
         return {
             "original_master_schema": json.loads(master_schema["master_schema"]),
             "new_schema": json.loads(json.dumps(schema)),
-            "comparison_to_master_schema": str(comparison_to_master), # *** this should be formatted better, but need to turn "delete" from a symbol to a string
+            "comparison_to_master_schema": str(
+                comparison_to_master
+            ),  # *** this should be formatted better, but need to turn "delete" from a symbol to a string
             "suggested_new_master_schema": json.loads(answer),
         }
     except Exception as e:
         print("Error: ", e)
         raise HTTPException(status_code=500, detail="Error adding schema")
+
+
