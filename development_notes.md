@@ -19,3 +19,8 @@
 - Run `gcloud app deploy`
 - To view service, run `gcloud app browse`
 - Ran `gcloud auth application-default login` to authenticate google secret manager
+
+# Google Notes
+- Agent Builder allows you to easily add additional data to an LLM
+  - Can build an LLM with access to your FHIR store on Agent Builder
+
