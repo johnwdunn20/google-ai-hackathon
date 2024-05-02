@@ -32,7 +32,7 @@ async def connect_db():
 async def root():
     return {
         "about": "Summary of the project",
-        "additional_documentation": "Link to DevPost and/or Youtube video",
+        "additional_documentation": "https://devpost.com/software/google-ai-hackathon-placeholder",
         "usage": "Visit /docs to see the API documentation and /openapi.json to see the OpenAPI schema",
     }
 
